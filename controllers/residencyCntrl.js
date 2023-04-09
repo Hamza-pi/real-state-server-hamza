@@ -1,27 +1,26 @@
 import { prisma } from "../config/prismaConfig.js";
 import asyncHandler from "express-async-handler";
-import cloudinaryUploadImage from "../config/cloudinary.js";
 // =============== Function to create new residency =============
 
 const createResidency = asyncHandler(async (req, resp) => {
   const { id } = req.user;
-  const { title, description, price, location, images } = req.body;
+  const { title, description, price, address, city, images } = req.body;
   try {
     const residency = await prisma.residency.create({
       data: {
         title,
         description,
         price,
-        location,
+        address,
+        city,
         images,
         owner: { connect: { id: id } },
       },
-      include: { owner: true },
     });
     resp.send({ message: "Residency Created Successfully", residency });
   } catch (error) {
     if (error.code === "P2002") {
-      throw new Error(`A residency with location ${location} already exists.`);
+      throw new Error(`A residency with address ${address} already exists.`);
     }
     throw new Error(error.message);
   }
@@ -61,30 +60,29 @@ const toFav = asyncHandler(async (req, resp) => {
   const { id } = req.user;
   const { rid } = req.params;
   try {
-    const favResd = await prisma.residency.findFirst({
-      where: {
-        favByIds: { equals: id },
-      },
-      select: {
-        favByIds: true,
-      },
+    const alreadyAdded = await prisma.user.findFirst({
+      where: { favResidenciesID: { equals: rid } },
     });
-    if (favResd) {
-      const residency = await prisma.residency.update({
-        where: { id: rid },
+    if (alreadyAdded !== null) {
+      const user = await prisma.user.update({
+        where: { id: id },
         data: {
-          favByIds: { set: favResd.favByIds.filter((id) => id !== id) },
+          favResidenciesID: {
+            set: alreadyAdded.favResidenciesID.filter((id) => id !== rid),
+          },
         },
       });
-      resp.send({ message: "Removed from favourites", residency });
+      resp.send({ message: "Removed From Favourites", user });
     } else {
-      const residency = await prisma.residency.update({
-        where: { id: rid },
+      const user = await prisma.user.update({
+        where: { id },
         data: {
-          favByIds: { push: id },
+          favResidenciesID: {
+            push: rid,
+          },
         },
       });
-      resp.send({ message: "Added To Favourites", residency });
+      resp.send({ message: "Added to Favourites", user });
     }
   } catch (error) {
     throw new Error(error.message);
@@ -112,33 +110,6 @@ const getAllResidencies = asyncHandler(async (req, resp) => {
   resp.send(residencies);
 });
 
-// =============== Function to upload residency image =============
-const uploadResdImg = asyncHandler(async (req, resp) => {
-  const { id } = req.params;
-  try {
-    const uploader = (path) => cloudinaryUploadImage(path, "images");
-    const urls = [];
-    const files = req.files;
-    for (const file of files) {
-      const { path } = file;
-      const newUrl = await uploader(path);
-      urls.push(newUrl);
-      fs.unlinkSync(path);
-    }
-    const uploadedPrdctImg = await Product.findByIdAndUpdate(
-      id,
-      {
-        images: urls.map((url) => {
-          return url;
-        }),
-      },
-      { new: true }
-    );
-    resp.send(uploadedPrdctImg);
-  } catch (error) {
-    throw new Error(error);
-  }
-});
 export {
   createResidency,
   updateResidency,
@@ -146,5 +117,4 @@ export {
   toFav,
   getAllResidencies,
   getResidency,
-  uploadResdImg,
 };

@@ -42,6 +42,7 @@ const loginUser = asyncHandler(async (req, resp) => {
         name: updatedUser?.name,
         profilePic: updatedUser?.image,
         email: updatedUser?.email,
+        favResidenciesID: updatedUser?.favResidenciesID,
         accessToken: generateToken(updatedUser?.id),
       });
     } else {
@@ -106,10 +107,11 @@ const getOwnResd = asyncHandler(async (req, resp) => {
 const getFavResd = asyncHandler(async (req, resp) => {
   const { id } = req.user;
   try {
-    const residencies = await prisma.residency.findMany({
-      where: { favByIds: { equals: id } },
+    const favResidencies = await prisma.user.findUnique({
+      where: { id: id },
+      select: { favResidenciesID: true },
     });
-    resp.send(residencies);
+    resp.send(favResidencies);
   } catch (error) {
     throw new Error(error.message);
   }

@@ -16,6 +16,6 @@ router.post("/login", loginUser);
 router.post("/logout", logoutUser);
 router.post("/refreshToken", handleRefreshToken);
 router.get("/ownresd", authMiddleware, getOwnResd);
-router.get("/favresd", authMiddleware, getFavResd);
+router.get("/favresd/", authMiddleware, getFavResd);
 
 export { router as authRoute };
