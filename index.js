@@ -3,6 +3,7 @@ import { notFound, errHandler } from "./middlewares/errorHandler.js";
 import { authRoute } from "./routes/authRoute.js";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 import { residencyRoute } from "./routes/residencyRoute.js";
 dotenv.config();
 
@@ -12,7 +13,7 @@ const PORT = process.env.PORT;
 
 app.use(express.json());
 app.use(cookieParser());
-
+app.use(cors());
 // ====================== Routes requests to server ======================
 
 app.use("/api/user", authRoute);
