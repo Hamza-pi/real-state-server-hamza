@@ -16,6 +16,8 @@ const authMiddleware = asyncHandler(async (req, resp, next) => {
         const user = await prisma.user.findFirst({
           where: { id: decoded?.id },
         });
+        if (user.refreshToken === "")
+          throw new Error("You Have Logged Please Login Again");
         req.user = user;
         next();
       }
