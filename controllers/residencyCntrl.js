@@ -3,7 +3,7 @@ import asyncHandler from "express-async-handler";
 // =============== Function to create new residency =============
 
 const createResidency = asyncHandler(async (req, resp) => {
-  const { id } = req.user;
+  const { email } = req.body;
   const { title, description, price, address, city, images } = req.body;
   try {
     const residency = await prisma.residency.create({
@@ -14,7 +14,7 @@ const createResidency = asyncHandler(async (req, resp) => {
         address,
         city,
         images,
-        owner: { connect: { id: id } },
+        owner: { connect: { email: email } },
       },
     });
     resp.send({ message: "Residency Created Successfully", residency });
@@ -57,7 +57,7 @@ const delResidency = asyncHandler(async (req, resp) => {
 // =============== Function to add residency to favourites =============
 
 const toFav = asyncHandler(async (req, resp) => {
-  const { id } = req.user;
+  const { email } = req.body;
   const { rid } = req.params;
   try {
     const alreadyAdded = await prisma.user.findFirst({
@@ -65,7 +65,7 @@ const toFav = asyncHandler(async (req, resp) => {
     });
     if (alreadyAdded !== null) {
       const user = await prisma.user.update({
-        where: { id: id },
+        where: { email: email },
         data: {
           favResidenciesID: {
             set: alreadyAdded.favResidenciesID.filter((id) => id !== rid),
@@ -75,7 +75,7 @@ const toFav = asyncHandler(async (req, resp) => {
       resp.send({ message: "Removed From Favourites", user });
     } else {
       const user = await prisma.user.update({
-        where: { id },
+        where: { email },
         data: {
           favResidenciesID: {
             push: rid,
