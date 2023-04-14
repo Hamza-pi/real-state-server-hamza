@@ -11,9 +11,11 @@ const app = express();
 
 const PORT = process.env.PORT;
 
+// enforce on all endpoints
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors());
+
 // ====================== Routes requests to server ======================
 
 app.use("/api/user", authRoute);

@@ -18,21 +18,19 @@ model Residency {
   address     String
   city        String
   images      String[]
-  owner       User     @relation("Owner", fields: [userId], references: [id])
-  userId      String   @db.ObjectId
+  owner       User     @relation("Owner", fields: [userEmail], references: [email])
+  userEmail   String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  @@unique(fields: [address, userId])
+  @@unique(fields: [address, userEmail])
 }
 
 model User {
   id               String      @id @default(auto()) @map("_id") @db.ObjectId
-  name             String
+  name             String?
   email            String      @unique
-  password         String
   image            String?
-  refreshToken     String?     @unique
   ownedResidencies Residency[] @relation("Owner")
   favResidenciesID String[]    @db.ObjectId
 }
