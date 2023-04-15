@@ -15,7 +15,7 @@ router.post("/create", jwtCheck, createResidency);
 router.put("/update/:id", jwtCheck, updateResidency);
 router.delete("/delete/:id", jwtCheck, delResidency);
 router.put("/tofav/:rid", jwtCheck, toFav);
-router.get("/:id", getResidency);
 router.get("/allresd", getAllResidencies);
+router.get("/:id", getResidency);
 
 export { router as residencyRoute };
