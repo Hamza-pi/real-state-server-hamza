@@ -36,7 +36,7 @@ const getFavResd = asyncHandler(async (req, resp) => {
   const { email } = req.body;
   try {
     const favResidencies = await prisma.user.findUnique({
-      where: { email: email },
+      where: { email },
       select: { favResidenciesID: true },
     });
     resp.send(favResidencies);

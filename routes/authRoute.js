@@ -10,6 +10,6 @@ const router = express.Router();
 
 router.post("/register", jwtCheck, createUser);
 router.get("/ownresd", jwtCheck, getOwnResd);
-router.get("/favresd/", jwtCheck, getFavResd);
+router.post("/favresd/", jwtCheck, getFavResd);
 
 export { router as authRoute };
