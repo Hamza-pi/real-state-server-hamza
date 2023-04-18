@@ -44,4 +44,33 @@ const getFavResd = asyncHandler(async (req, resp) => {
     throw new Error(error.message);
   }
 });
-export { createUser, getOwnResd, getFavResd };
+// =============== Function to book visit to residencies  =============
+
+const bookVisit = asyncHandler(async (req, resp) => {
+  const { email, date } = req.body;
+  const { id } = req.params;
+  try {
+    const alreadyBooked = await prisma.user.findFirst({
+      where: {
+        bookedVisits: { equals: { id } },
+      },
+    });
+    if (!alreadyBooked) {
+      const user = await prisma.user.update({
+        where: { email },
+        data: {
+          bookedVisits: {
+            push: { id, date },
+          },
+        },
+      });
+      resp.send({ message: "Visit Is Booked", user });
+    } else {
+      resp.send({ message: "Already Booked By You" });
+    }
+  } catch (error) {
+    throw new Error(error.message);
+  }
+});
+
+export { createUser, getOwnResd, getFavResd, bookVisit };

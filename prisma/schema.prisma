@@ -34,4 +34,5 @@ model User {
   image            String?
   ownedResidencies Residency[] @relation("Owner")
   favResidenciesID String[]    @db.ObjectId
+  bookedVisits     Json[]
 }
