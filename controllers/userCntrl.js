@@ -49,22 +49,19 @@ const getFavResd = asyncHandler(async (req, resp) => {
 const bookVisit = asyncHandler(async (req, resp) => {
   const { email, date } = req.body;
   const { id } = req.params;
+  console.log(date);
   try {
     const alreadyBooked = await prisma.user.findUnique({
       where: { email },
       select: { bookedVisits: true },
     });
-    if (
-      alreadyBooked.bookedVisits.some(
-        (visit) => visit.id === id || visit.date >= new Date().toISOString()
-      )
-    ) {
-      resp.send("Already Booked By You");
+    if (alreadyBooked.bookedVisits.some((visit) => visit.id === id)) {
+      resp.send("This Residency Is Already Booked By You Or ");
     } else {
       const user = await prisma.user.update({
         where: { email },
         data: {
-          bookedVisits: { push: { id, date: new Date(date).toISOString() } },
+          bookedVisits: { push: { id, date } },
         },
       });
       resp.send("Booked Your Visit");
