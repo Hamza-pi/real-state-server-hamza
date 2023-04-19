@@ -56,7 +56,7 @@ const bookVisit = asyncHandler(async (req, resp) => {
       select: { bookedVisits: true },
     });
     if (alreadyBooked.bookedVisits.some((visit) => visit.id === id)) {
-      resp.send("This Residency Is Already Booked By You Or ");
+      resp.send("This Residency Is Already Booked By You");
     } else {
       const user = await prisma.user.update({
         where: { email },
