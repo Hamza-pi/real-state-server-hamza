@@ -50,23 +50,24 @@ const bookVisit = asyncHandler(async (req, resp) => {
   const { email, date } = req.body;
   const { id } = req.params;
   try {
-    const alreadyBooked = await prisma.user.findFirst({
-      where: {
-        bookedVisits: { equals: { id } },
-      },
+    const alreadyBooked = await prisma.user.findUnique({
+      where: { email },
+      select: { bookedVisits: true },
     });
-    if (!alreadyBooked) {
+    if (
+      alreadyBooked.bookedVisits.some(
+        (visit) => visit.id === id || visit.date >= new Date().toISOString()
+      )
+    ) {
+      resp.send("Already Booked By You");
+    } else {
       const user = await prisma.user.update({
         where: { email },
         data: {
-          bookedVisits: {
-            push: { id, date },
-          },
+          bookedVisits: { push: { id, date: new Date(date).toISOString() } },
         },
       });
-      resp.send({ message: "Visit Is Booked", user });
-    } else {
-      resp.send({ message: "Already Booked By You" });
+      resp.send("Booked Your Visit");
     }
   } catch (error) {
     throw new Error(error.message);
